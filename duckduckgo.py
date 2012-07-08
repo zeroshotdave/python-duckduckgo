@@ -1,6 +1,7 @@
 import urllib
 import urllib2
 import json as j
+import sys
 
 __version__ = 0.2
 
@@ -54,6 +55,7 @@ class Results(object):
                      'C': 'category', 'N': 'name',
                      'E': 'exclusive', '': 'nothing'}[json.get('Type','')]
 
+        self.json = json
         self.api_version = None # compat
 
         self.heading = json.get('Heading', '')
@@ -116,3 +118,18 @@ class Definition(object):
         self.text = json.get('Definition','')
         self.url = json.get('DefinitionURL')
         self.source = json.get('DefinitionSource')
+
+
+def main():
+    if len(sys.argv) > 1:
+        q = query(' '.join(sys.argv[1:]))
+        keys = q.json.keys()
+        keys.sort()
+        for key in keys:
+            sys.stdout.write(key)
+            if type(q.json[key]) in [str,unicode]: print ':', q.json[key]
+            else: 
+                sys.stdout.write('\n')
+                for i in q.json[key]: print '\t',i
+    else:
+        print 'Usage: %s [query]' % sys.argv[0]
