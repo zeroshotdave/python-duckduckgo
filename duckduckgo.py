@@ -1,14 +1,13 @@
-#!/usr/bin/env python
 import urllib
 import urllib2
-from xml.etree import ElementTree
+import json as j
 
-__version__ = 0.1
+__version__ = 0.2
 
 
-def query(query, useragent='python-duckduckgo 0.1'):
+def query(query, useragent='python-duckduckgo '+str(__version__), safesearch=True, html=False, **kwargs):
     """
-    Query Duck Duck Go, returning a Results object.
+    Query DuckDuckGo, returning a Results object.
 
     Here's a query that's unlikely to change:
 
@@ -19,146 +18,105 @@ def query(query, useragent='python-duckduckgo 0.1'):
     '1 + 1 = 2'
     >>> result.answer.type
     'calc'
-    """
-    params = urllib.urlencode({'q': query, 'o': 'x'})
-    url = 'http://duckduckgo.com/?' + params
+
+    Keword arguments:
+    useragent: UserAgent to use while querying. Default: "python-duckduckgo %d" (str)
+    safesearch: True for on, False for off. Default: True (bool)
+    html: True to allow HTML in output. Default: False (bool)
+    Any other keyword arguments are passed directly to DuckDuckGo as URL params.
+    """ % __version__
+
+    safesearch = '1' if safesearch else '-1'
+    html = '0' if html else '1'
+    params = {
+        'q': query,
+        'o': 'json',
+        'kp': safesearch,
+        'no_redirect': '1',
+        'no_html': html,
+        }
+    params.update(kwargs)
+    encparams = urllib.urlencode(params)
+    url = 'http://duckduckgo.com/?' + encparams
 
     request = urllib2.Request(url, headers={'User-Agent': useragent})
     response = urllib2.urlopen(request)
-    xml = ElementTree.fromstring(response.read())
+    json = j.loads(response.read())
     response.close()
 
-    return Results(xml)
+    return Results(json)
 
 
 class Results(object):
 
-    def __init__(self, xml):
+    def __init__(self, json):
         self.type = {'A': 'answer', 'D': 'disambiguation',
                      'C': 'category', 'N': 'name',
-                     'E': 'exclusive', '': 'nothing'}[xml.findtext('Type', '')]
+                     'E': 'exclusive', '': 'nothing'}[json.get('Type','')]
 
-        self.api_version = xml.attrib.get('version', None)
+        self.api_version = None # compat
 
-        self.heading = xml.findtext('Heading', '')
+        self.heading = json.get('Heading', '')
 
-        self.results = [Result(elem) for elem in xml.getiterator('Result')]
+        self.results = [Result(elem) for elem in json.get('Results',[])]
         self.related = [Result(elem) for elem in
-                        xml.getiterator('RelatedTopic')]
+                        json.get('RelatedTopics',[])]
 
-        self.abstract = Abstract(xml)
+        self.abstract = Abstract(json)
+        self.redirect = Redirect(json)
 
-        answer_xml = xml.find('Answer')
-        if answer_xml is not None:
-            self.answer = Answer(answer_xml)
+        answer_json = {}
+        for key in json.keys():
+            if key.lower().startswith('answer'):
+                answer_json.update({key: json[key]})
+        if answer_json is not {}:
+            self.answer = Answer(answer_json)
             if not self.answer.text:
                 self.answer = None
         else:
             self.answer = None
 
-        image_xml = xml.find('Image')
-        if image_xml is not None and image_xml.text:
-            self.image = Image(image_xml)
-        else:
-            self.image = None
+        self.image = Image({'Result':json.get('Image','')})
 
 
 class Abstract(object):
 
-    def __init__(self, xml):
-        self.html = xml.findtext('Abstract', '')
-        self.text = xml.findtext('AbstractText', '')
-        self.url = xml.findtext('AbstractURL', '')
-        self.source = xml.findtext('AbstractSource')
+    def __init__(self, json):
+        self.html = json.get('Abstract', '')
+        self.text = json.get('AbstractText', '')
+        self.url = json.get('AbstractURL', '')
+        self.source = json.get('AbstractSource')
 
+class Redirect(object):
+
+    def __init__(self, json):
+        self.url = json.get('Redirect', '')
 
 class Result(object):
 
-    def __init__(self, xml):
-        self.html = xml.text
-        self.text = xml.findtext('Text')
-        self.url = xml.findtext('FirstURL')
+    def __init__(self, json):
+        self.html = json.get('Result')
+        self.text = json.get('Text')
+        self.url = json.get('FirstURL')
 
-        icon_xml = xml.find('Icon')
-        if icon_xml is not None:
-            self.icon = Image(icon_xml)
+        icon_json = json.get('Icon')
+        if icon_json is not None:
+            self.icon = Image(icon_json)
         else:
             self.icon = None
 
 
 class Image(object):
 
-    def __init__(self, xml):
-        self.url = xml.text
-        self.height = xml.attrib.get('height', None)
-        self.width = xml.attrib.get('width', None)
+    def __init__(self, json):
+        self.url = json.get('Result')
+        self.height = json.get('Height', None)
+        self.width = json.get('Width', None)
 
 
 class Answer(object):
 
-    def __init__(self, xml):
-        self.text = xml.text
-        self.type = xml.attrib.get('type', '')
-
-
-def main():
-    import sys
-    from optparse import OptionParser
-
-    parser = OptionParser(usage="usage: %prog [options] query",
-                          version="ddg %s" % __version__)
-    parser.add_option("-o", "--open", dest="open", action="store_true",
-                      help="open results in a browser")
-    parser.add_option("-n", dest="n", type="int", default=3,
-                      help="number of results to show")
-    parser.add_option("-d", dest="d", type="int", default=None,
-                      help="disambiguation choice")
-    (options, args) = parser.parse_args()
-    q = ' '.join(args)
-
-    if options.open:
-        import urllib
-        import webbrowser
-
-        webbrowser.open("http://duckduckgo.com/?%s" % urllib.urlencode(
-            dict(q=q)), new=2)
-
-        sys.exit(0)
-
-    results = query(q)
-
-    if options.d and results.type == 'disambiguation':
-        try:
-            related = results.related[options.d - 1]
-        except IndexError:
-            print "Invalid disambiguation number."
-            sys.exit(1)
-        results = query(related.url.split("/")[-1].replace("_", " "))
-
-    if results.answer and results.answer.text:
-        print "Answer: %s\n" % results.answer.text
-    elif results.abstract and results.abstract.text:
-        print "%s\n" % results.abstract.text
-
-    if results.type == 'disambiguation':
-        print ("'%s' can mean multiple things. You can re-run your query "
-               "and add '-d #' where '#' is the topic number you're "
-               "interested in.\n" % q)
-
-        for i, related in enumerate(results.related[0:options.n]):
-            name = related.url.split("/")[-1].replace("_", " ")
-            summary = related.text
-            if len(summary) < len(related.text):
-                summary += "..."
-            print '%d. %s: %s\n' % (i + 1, name, summary)
-    else:
-        for i, result in enumerate(results.results[0:options.n]):
-            summary = result.text[0:70].replace("&nbsp;", " ")
-            if len(summary) < len(result.text):
-                summary += "..."
-            print "%d. %s" % (i + 1, summary)
-            print "  <%s>\n" % result.url
-
-
-if __name__ == '__main__':
-    main()
+    def __init__(self, json):
+        print type(json)
+        self.text = json.get('Answer')
+        self.type = json.get('AnswerType', '')
