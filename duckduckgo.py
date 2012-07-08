@@ -64,17 +64,8 @@ class Results(object):
 
         self.abstract = Abstract(json)
         self.redirect = Redirect(json)
-
-        answer_json = {}
-        for key in json.keys():
-            if key.lower().startswith('answer'):
-                answer_json.update({key: json[key]})
-        if answer_json is not {}:
-            self.answer = Answer(answer_json)
-            if not self.answer.text:
-                self.answer = None
-        else:
-            self.answer = None
+        self.definition = Definition(json)
+        self.answer = Answer(json)
 
         self.image = Image({'Result':json.get('Image','')})
 
@@ -117,6 +108,11 @@ class Image(object):
 class Answer(object):
 
     def __init__(self, json):
-        print type(json)
         self.text = json.get('Answer')
         self.type = json.get('AnswerType', '')
+
+class Definition(object):
+    def __init__(self, json):
+        self.text = json.get('Definition','')
+        self.url = json.get('DefinitionURL')
+        self.source = json.get('DefinitionSource')
