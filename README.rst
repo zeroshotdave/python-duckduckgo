@@ -50,14 +50,13 @@ Usage
     >>> r.answer.type
     'calc'
 
-    # query() takes some special arguments, and passes the rest directly to the API.
     >>> print duckduckgo.query('19301', kad='es_ES').answer.text
     19301 es un código postal de Paoli, PA
     >>> print duckduckgo.query('how to spell test', html=True).answer.text
     <b>Test</b> appears to be spelled right!<br/><i>Suggestions: </i>test, testy, teat, tests, rest, yest.
 
-    # Special keyword args:
-    #   useragent   - string, The useragent used to make API calls. This is somewhat irrelevant, as they are not logged or used on DuckDuckGo, but it is retained for backwards compatibility.
-    #   safesearch  - boolean, enable or disable safesearch.
-    #   html        - boolean, Allow HTML in responses?
+Special keyword args for query():
+ - useragent   - string, The useragent used to make API calls. This is somewhat irrelevant, as they are not logged or used on DuckDuckGo, but it is retained for backwards compatibility.
+ - safesearch  - boolean, enable or disable safesearch.
+ - html        - boolean, Allow HTML in responses?
 
