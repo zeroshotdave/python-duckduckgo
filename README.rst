@@ -24,31 +24,34 @@ Usage
     >>> import duckduckgo
     >>> r = duckduckgo.query('DuckDuckGo')
     >>> r.type
-    'answer'
+    u'answer'
     >>> r.results[0].text
-    'Official site'
+    u'Official site'
     >>> r.results[0].url
-    'http://duckduckgo.com/'
+    u'http://duckduckgo.com/'
     >>> r.abstract.url
-    'http://en.wikipedia.org/wiki/Duck_Duck_Go'
+    u'http://en.wikipedia.org/wiki/Duck_Duck_Go'
     >>> r.abstract.source
-    'Wikipedia'
+    u'Wikipedia'
     
     >>> r = duckduckgo.query('Python')
     >>> r.type
-    'disambiguation'
-    >>> r.related[6].text
-    'Python (programming language), a computer programming language'
-    >>> r.related[6].url
-    'http://duckduckgo.com/Python_(programming_language)'
+    u'disambiguation'
+    >>> r.related[1].text
+    u'Python (programming language), a computer programming language'
+    >>> r.related[1].url
+    u'http://duckduckgo.com/Python_(programming_language)'
+    >>> r.related[7].topics[0].text # weird, but this is how the DDG API is currently organized
+    u'Armstrong Siddeley Python, an early turboprop engine'
+
 
     >>> r = duckduckgo.query('1 + 1')
     >>> r.type
-    'nothing'
+    u'nothing'
     >>> r.answer.text
-    '1 + 1 = 2'
+    u'1 + 1 = 2'
     >>> r.answer.type
-    'calc'
+    u'calc'
 
     >>> print duckduckgo.query('19301', kad='es_ES').answer.text
     19301 es un código postal de Paoli, PA
