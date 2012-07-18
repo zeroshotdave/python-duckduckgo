@@ -88,6 +88,10 @@ class Redirect(object):
 class Result(object):
 
     def __init__(self, json):
+        self.topics = json.get('Topics', [])
+        if self.topics:
+            self.topics = [Result(t) for t in self.topics]
+            return
         self.html = json.get('Result')
         self.text = json.get('Text')
         self.url = json.get('FirstURL')
