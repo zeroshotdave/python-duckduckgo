@@ -3,14 +3,14 @@ from duckduckgo import __version__
 
 long_description = open('README.rst').read()
 
-setup(name='duckduckgo',
+setup(name='duckduckgo2',
       version=__version__,
       py_modules=['duckduckgo'],
-      description='Library for querying the Duck Duck Go API',
-      author='Michael Stephens',
-      author_email='me@mikej.st',
+      description='Library for querying the DuckDuckGo API',
+      author='Michael Smith',
+      author_email='crazedpsyc@duckduckgo.com',
       license='BSD',
-      url='http://github.com/mikejs/python-duckduckgo/',
+      url='http://github.com/crazedpsyc/python-duckduckgo/',
       long_description=long_description,
       platforms=['any'],
       classifiers=["Development Status :: 4 - Beta",
