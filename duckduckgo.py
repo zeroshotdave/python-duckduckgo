@@ -30,7 +30,7 @@ def query(query, useragent='python-duckduckgo '+str(__version__), safesearch=Tru
 
     safesearch = '1' if safesearch else '-1'
     html = '0' if html else '1'
-    meanings = '1' if meanings else '0'
+    meanings = '0' if meanings else '1'
     params = {
         'q': query,
         'o': 'json',
