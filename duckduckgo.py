@@ -6,7 +6,7 @@ import sys
 __version__ = 0.2
 
 
-def query(query, useragent='python-duckduckgo '+str(__version__), safesearch=True, html=False, **kwargs):
+def query(query, useragent='python-duckduckgo '+str(__version__), safesearch=True, html=False, meanings=True, **kwargs):
     """
     Query DuckDuckGo, returning a Results object.
 
@@ -24,17 +24,20 @@ def query(query, useragent='python-duckduckgo '+str(__version__), safesearch=Tru
     useragent: UserAgent to use while querying. Default: "python-duckduckgo %d" (str)
     safesearch: True for on, False for off. Default: True (bool)
     html: True to allow HTML in output. Default: False (bool)
+    meanings: True to include disambiguations in results (bool)
     Any other keyword arguments are passed directly to DuckDuckGo as URL params.
     """ % __version__
 
     safesearch = '1' if safesearch else '-1'
     html = '0' if html else '1'
+    meanings = '1' if meanings else '0'
     params = {
         'q': query,
         'o': 'json',
         'kp': safesearch,
         'no_redirect': '1',
         'no_html': html,
+        'd': meanings,
         }
     params.update(kwargs)
     encparams = urllib.urlencode(params)
