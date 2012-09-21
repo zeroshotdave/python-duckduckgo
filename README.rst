@@ -58,6 +58,12 @@ Usage
     >>> print duckduckgo.query('how to spell test', html=True).answer.text
     <b>Test</b> appears to be spelled right!<br/><i>Suggestions: </i>test, testy, teat, tests, rest, yest.
 
+    # The easiest method of quickly grabbing the best (hopefully) API result is to use duckduckgo.get_zci:
+    >>> print duckduckgo.get_zci('foo')
+    The terms foobar /ˈfʊːbɑːr/, fubar, or foo, bar, baz and qux are sometimes used as placeholder names in computer programming or computer-related documentation. (https://en.wikipedia.org/wiki/Foobar)
+    >>> print ddg.get_zci('foo fighters site')
+    http://www.foofighters.com/us/home
+
 Special keyword args for query():
  - useragent   - string, The useragent used to make API calls. This is somewhat irrelevant, as they are not logged or used on DuckDuckGo, but it is retained for backwards compatibility.
  - safesearch  - boolean, enable or disable safesearch.
