@@ -3,7 +3,7 @@ import urllib2
 import json as j
 import sys
 
-__version__ = 0.2
+__version__ = 0.21
 
 
 def query(query, useragent='python-duckduckgo '+str(__version__), safesearch=True, html=False, meanings=True, **kwargs):
@@ -126,6 +126,42 @@ class Definition(object):
         self.url = json.get('DefinitionURL')
         self.source = json.get('DefinitionSource')
 
+
+def get_zci(q, web_fallback=True, priority=['answer', 'abstract', 'related.0', 'definition'], **kwargs):
+    '''A helper method to get a single (and hopefully the best) ZCI result.
+    priority=list can be used to set the order in which fields will be checked for answers.
+    Use web_fallback=True to fall back to grabbing the first web result.
+    passed to query. This method will fall back to 'Sorry, no results.' 
+    if it cannot find anything.'''
+
+    ddg = query('\\'+q, **kwargs)
+    response = ''
+
+    for p in priority:
+        ps = p.split('.')
+        type = ps[0]
+        index = int(ps[1]) if len(ps) > 1 else None
+
+        result = getattr(ddg, type)
+        if index is not None: 
+            result = result[index] if len(result) > index else None
+        if not result: continue
+
+        if result.text: response = result.text
+        if result.text and hasattr(result,'url'): 
+            if result.url: response += ' (%s)' % result.url
+        if response: break
+
+    # if there still isn't anything, try to get the first web result
+    if not response and web_fallback:
+        if ddg.redirect.url:
+            response = ddg.redirect.url
+
+    # final fallback
+    if not response: 
+        response = 'Sorry, no results.'
+
+    return response
 
 def main():
     if len(sys.argv) > 1:
