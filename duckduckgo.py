@@ -3,7 +3,7 @@ import urllib2
 import json as j
 import sys
 
-__version__ = 0.21
+__version__ = 0.24
 
 
 def query(query, useragent='python-duckduckgo '+str(__version__), safesearch=True, html=False, meanings=True, **kwargs):
@@ -127,7 +127,7 @@ class Definition(object):
         self.source = json.get('DefinitionSource')
 
 
-def get_zci(q, web_fallback=True, priority=['answer', 'abstract', 'related.0', 'definition'], **kwargs):
+def get_zci(q, web_fallback=True, priority=['answer', 'abstract', 'related.0', 'definition'], urls=True, **kwargs):
     '''A helper method to get a single (and hopefully the best) ZCI result.
     priority=list can be used to set the order in which fields will be checked for answers.
     Use web_fallback=True to fall back to grabbing the first web result.
@@ -148,7 +148,7 @@ def get_zci(q, web_fallback=True, priority=['answer', 'abstract', 'related.0', '
         if not result: continue
 
         if result.text: response = result.text
-        if result.text and hasattr(result,'url'): 
+        if result.text and hasattr(result,'url') and urls: 
             if result.url: response += ' (%s)' % result.url
         if response: break
 
