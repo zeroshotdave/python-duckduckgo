@@ -3,7 +3,7 @@ import urllib2
 import json as j
 import sys
 
-__version__ = 0.24
+__version__ = 0.241
 
 
 def query(query, useragent='python-duckduckgo '+str(__version__), safesearch=True, html=False, meanings=True, **kwargs):
@@ -41,7 +41,7 @@ def query(query, useragent='python-duckduckgo '+str(__version__), safesearch=Tru
         }
     params.update(kwargs)
     encparams = urllib.urlencode(params)
-    url = 'http://duckduckgo.com/?' + encparams
+    url = 'http://api.duckduckgo.com/?' + encparams
 
     request = urllib2.Request(url, headers={'User-Agent': useragent})
     response = urllib2.urlopen(request)
@@ -144,6 +144,7 @@ def get_zci(q, web_fallback=True, priority=['answer', 'abstract', 'related.0', '
 
         result = getattr(ddg, type)
         if index is not None: 
+            if not hasattr(result, '__getitem__'): raise TypeError('%s field is not indexable' % type)
             result = result[index] if len(result) > index else None
         if not result: continue
 
