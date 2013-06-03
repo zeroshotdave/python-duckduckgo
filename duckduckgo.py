@@ -56,7 +56,7 @@ class Results(object):
     def __init__(self, json):
         self.type = {'A': 'answer', 'D': 'disambiguation',
                      'C': 'category', 'N': 'name',
-                     'E': 'exclusive', '': 'nothing'}[json.get('Type','')]
+                     'E': 'exclusive', '': 'nothing'}.get(json.get('Type',''), '')
 
         self.json = json
         self.api_version = None # compat
@@ -171,9 +171,9 @@ def main():
         keys.sort()
         for key in keys:
             sys.stdout.write(key)
-            if type(q.json[key]) in [str,unicode]: print ':', q.json[key]
+            if type(q.json[key]) in [str,unicode]: print(':', q.json[key])
             else: 
                 sys.stdout.write('\n')
-                for i in q.json[key]: print '\t',i
+                for i in q.json[key]: print('\t',i)
     else:
-        print 'Usage: %s [query]' % sys.argv[0]
+        print('Usage: %s [query]' % sys.argv[0])
