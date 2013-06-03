@@ -3,7 +3,7 @@ import urllib2
 import json as j
 import sys
 
-__version__ = 0.241
+__version__ = 0.242
 
 
 def query(query, useragent='python-duckduckgo '+str(__version__), safesearch=True, html=False, meanings=True, **kwargs):
