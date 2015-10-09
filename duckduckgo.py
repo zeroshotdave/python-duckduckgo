@@ -1,3 +1,10 @@
+# duckduckgo.py - Library for querying the DuckDuckGo API
+#
+# Copyright (c) 2010 Michael Stephens <me@mikej.st>
+# Copyright (c) 2012-2013 Michael Smith <crazedpsyc@gshellz.org>
+#
+# See LICENSE for terms of usage, modification and redistribution.
+
 import urllib
 import urllib2
 import json as j
