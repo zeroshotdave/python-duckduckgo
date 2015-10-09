@@ -171,7 +171,7 @@ def main():
         keys.sort()
         for key in keys:
             sys.stdout.write(key)
-            if type(q.json[key]) in [str,unicode]: print(':', q.json[key])
+            if type(q.json[key]) in [str,unicode,int]: print(':', q.json[key])
             else: 
                 sys.stdout.write('\n')
                 for i in q.json[key]: print('\t',i)
