@@ -6,9 +6,11 @@
 # See LICENSE for terms of usage, modification and redistribution.
 
 import urllib
-import urllib2
 import json as j
 import sys
+import urllib.parse
+import urllib.request
+import urllib.response
 
 __version__ = 0.242
 
@@ -39,20 +41,21 @@ def query(query, useragent='python-duckduckgo '+str(__version__), safesearch=Tru
     html = '0' if html else '1'
     meanings = '0' if meanings else '1'
     params = {
-        'q': query,
-        'o': 'json',
-        'kp': safesearch,
-        'no_redirect': '1',
-        'no_html': html,
-        'd': meanings,
-        }
-    params.update(kwargs)
-    encparams = urllib.urlencode(params)
+    'q': query,
+    'o': 'json',
+    'kp': safesearch,
+    'no_redirect': '1',
+    'no_html': html,
+    'd': meanings,
+    }
+    encparams = urllib.parse.urlencode(params)
     url = 'http://api.duckduckgo.com/?' + encparams
 
-    request = urllib2.Request(url, headers={'User-Agent': useragent})
-    response = urllib2.urlopen(request)
+    request = urllib.request.Request(url, headers={'User-Agent': useragent})
+    response = urllib.response.urlopen(request)
     json = j.loads(response.read())
+
+    urllib.update(kwargs)
     response.close()
 
     return Results(json)
